@@ -1,0 +1,15 @@
+**/target/
+**/build/
+.vm/
+*.o
+*.ko
+*.mod
+*.mod.c
+*.cmd
+Module.symvers
+modules.order
+
+!docs/evidence/*.log
+
+**/__pycache__/
+*.pyc

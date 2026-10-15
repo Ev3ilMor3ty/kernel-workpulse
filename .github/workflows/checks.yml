@@ -1,0 +1,39 @@
+name: Reader and isolated kernel checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reader:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo test --manifest-path reader/Cargo.toml --locked
+      - run: cargo fmt --manifest-path reader/Cargo.toml --check
+  vm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install a matching VM kernel, headers and userland
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y linux-image-generic linux-headers-generic busybox-static qemu-system-x86 dwarves
+      - name: Build and test only inside QEMU
+        run: |
+          KERNEL_VERSION=$(find /usr/src -maxdepth 1 -name 'linux-headers-*-generic' -printf '%f\n' | sed 's/linux-headers-//' | sort -V | tail -1)
+          test -f "/boot/vmlinuz-$KERNEL_VERSION"
+          mkdir -p .vm
+          sudo cp "/boot/vmlinuz-$KERNEL_VERSION" .vm/kernel
+          sudo chown "$(id -u):$(id -g)" .vm/kernel
+          sudo chmod 0644 .vm/kernel
+          make -C module KDIR="/usr/src/linux-headers-$KERNEL_VERSION" -j2
+          python3 vm/run_vm.py --kernel .vm/kernel --busybox /bin/busybox --output .vm/ci
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vm-evidence
+          path: .vm/ci/
+          retention-days: 14

@@ -11,7 +11,7 @@ Completed local checks:
 
 See [the lifecycle result](evidence/vm-lifecycle.json) and [serial log](evidence/vm-lifecycle-serial.log) for the exact tested module hash and observations.
 
-A four-hour lifecycle soak was launched separately with frozen module and harness inputs. **It is not a passed four-hour result until its checkpoint reports `complete: true`.** Repository evidence will be updated only from completed checks; a source change never inherits an earlier binary's result.
+The separately frozen four-hour lifecycle soak completed successfully: **2,864 validated telemetry readings and 238 reload cycles**, with live reader races, competing-work pulses and final cleanup. See [the completed summary](evidence/four-hour-soak.json) and [all captured samples](evidence/four-hour-samples.jsonl). Results apply to the recorded kernel/module identities; a changed module does not inherit this result.
 
 Development caught and corrected a telemetry format-argument mismatch. Warnings are now build errors, and host validation checks the relationship between module start time, sample time, uptime and populated histogram buckets. Earlier prototype outputs are not presented as validation of the corrected module.
 

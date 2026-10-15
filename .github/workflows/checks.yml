@@ -1,6 +1,8 @@
 name: Reader and isolated kernel checks
 on:
   push:
+    branches: [main]
+    paths: ["module/**", "reader/**", "vm/**", ".github/workflows/**"]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -35,5 +37,7 @@ jobs:
         if: always()
         with:
           name: vm-evidence
-          path: .vm/ci/
+          path: |
+            .vm/ci/result.json
+            .vm/ci/serial.log
           retention-days: 14
